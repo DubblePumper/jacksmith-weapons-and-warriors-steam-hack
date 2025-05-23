@@ -19,14 +19,14 @@ def create_main_layout(master):
 
 def setup_left_frame(parent_frame, app_instance):
     """Sets up the folder selection and SOL files listbox in the left frame."""
-    folder_select_frame = ttk.LabelFrame(parent_frame, text="Map Selectie", padding="10")  # Increased padding
-    folder_select_frame.pack(fill=tk.X, pady=(0,10))  # Added bottom margin
-    app_instance.select_folder_button = ttk.Button(folder_select_frame, text="Kies Jacksmith Map", command=app_instance.select_sol_folder_gui_action)
+    folder_select_frame = ttk.LabelFrame(parent_frame, text="Folder Selection", padding="10")
+    folder_select_frame.pack(fill=tk.X, pady=(0,10))
+    app_instance.select_folder_button = ttk.Button(folder_select_frame, text="Choose Jacksmith Folder", command=app_instance.select_sol_folder_gui_action)
     app_instance.select_folder_button.pack(fill=tk.X, pady=5)
-    app_instance.folder_label = ttk.Label(folder_select_frame, text="Nog geen map geselecteerd", wraplength=240)  # Increased wraplength
+    app_instance.folder_label = ttk.Label(folder_select_frame, text="No folder selected yet", wraplength=240)
     app_instance.folder_label.pack(fill=tk.X, pady=5)
 
-    files_frame = ttk.LabelFrame(parent_frame, text=".SOL Bestanden", padding="10")  # Increased padding
+    files_frame = ttk.LabelFrame(parent_frame, text=".SOL Files", padding="10")
     files_frame.pack(fill=tk.BOTH, expand=True)
     
     app_instance.sol_files_listbox = tk.Listbox(files_frame, exportselection=False)
@@ -39,11 +39,11 @@ def setup_left_frame(parent_frame, app_instance):
 
 def setup_middle_frame(parent_frame, app_instance):
     """Sets up the data treeview in the middle frame."""
-    tree_frame = ttk.LabelFrame(parent_frame, text="Data Structuur", padding="10")  # Increased padding
+    tree_frame = ttk.LabelFrame(parent_frame, text="Data Structure", padding="10")
     tree_frame.pack(fill=tk.BOTH, expand=True)
     app_instance.data_tree = ttk.Treeview(tree_frame, columns=("Value"), selectmode="browse")
     app_instance.data_tree.heading("#0", text="Key/Index")
-    app_instance.data_tree.heading("Value", text="Waarde")
+    app_instance.data_tree.heading("Value", text="Value")
     app_instance.data_tree.column("#0", width=220, stretch=tk.YES, anchor=tk.W)  # Anchor West
     app_instance.data_tree.column("Value", width=320, stretch=tk.YES, anchor=tk.W)  # Anchor West
     app_instance.data_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -55,16 +55,21 @@ def setup_middle_frame(parent_frame, app_instance):
     tree_scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
     app_instance.data_tree.config(xscrollcommand=tree_scrollbar_x.set)
 
+    # Bind double-click to edit value
+    app_instance.data_tree.bind('<Double-1>', app_instance.on_tree_item_select)
+    # Optionally, also bind single click to select
+    app_instance.data_tree.bind('<<TreeviewSelect>>', app_instance.on_tree_item_select)
+
 def setup_right_frame(parent_frame, app_instance):
     """Sets up the item editing controls in the right frame."""
-    edit_controls_frame = ttk.LabelFrame(parent_frame, text="Item Bewerken", padding="10")  # Increased padding
+    edit_controls_frame = ttk.LabelFrame(parent_frame, text="Edit Item", padding="10")
     edit_controls_frame.pack(fill=tk.BOTH, expand=True)
     ttk.Label(edit_controls_frame, text="Key/Index:").grid(row=0, column=0, sticky=tk.NW, padx=5, pady=(5,2))
     app_instance.key_label_var = tk.StringVar()
     key_display_entry = ttk.Entry(edit_controls_frame, textvariable=app_instance.key_label_var, state='readonly')  # Read-only Entry
     key_display_entry.grid(row=0, column=1, sticky=tk.NSEW, padx=5, pady=(5,2))
 
-    ttk.Label(edit_controls_frame, text="Waarde:").grid(row=1, column=0, sticky=tk.NW, padx=5, pady=2)
+    ttk.Label(edit_controls_frame, text="Value:").grid(row=1, column=0, sticky=tk.NW, padx=5, pady=2)
     text_area_frame = ttk.Frame(edit_controls_frame)
     text_area_frame.grid(row=1, column=1, sticky=tk.NSEW, padx=5, pady=2)
     edit_controls_frame.grid_rowconfigure(1, weight=1)
@@ -77,16 +82,16 @@ def setup_right_frame(parent_frame, app_instance):
     value_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     app_instance.value_text.config(yscrollcommand=value_scrollbar.set)
 
-    app_instance.update_button = ttk.Button(edit_controls_frame, text="Update Waarde", command=app_instance.update_value, state=tk.DISABLED)
+    app_instance.update_button = ttk.Button(edit_controls_frame, text="Update Value", command=app_instance.update_value, state=tk.DISABLED)
     app_instance.update_button.grid(row=2, column=1, sticky=tk.EW, padx=5, pady=(10,5))  # Added more vertical padding
 
 def setup_bottom_actions_frame(master, app_instance):
     """Sets up the global action buttons at the bottom of the window."""
     bottom_actions_frame = ttk.Frame(master, padding="10")
     bottom_actions_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=(5,0))
-    app_instance.save_button = ttk.Button(bottom_actions_frame, text="Opslaan (.sol)", command=app_instance.save_sol_file, state=tk.DISABLED)
+    app_instance.save_button = ttk.Button(bottom_actions_frame, text="Save (.sol)", command=app_instance.save_sol_file, state=tk.DISABLED)
     app_instance.save_button.pack(side=tk.LEFT, padx=(0,5))  # Adjusted padding
-    app_instance.export_button = ttk.Button(bottom_actions_frame, text="Exporteren (.json)", command=app_instance.export_to_json, state=tk.DISABLED)
+    app_instance.export_button = ttk.Button(bottom_actions_frame, text="Export (.json)", command=app_instance.export_to_json, state=tk.DISABLED)
     app_instance.export_button.pack(side=tk.LEFT, padx=5)
     ttk.Separator(bottom_actions_frame, orient=tk.HORIZONTAL).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=20)  # Added separator
-    ttk.Button(bottom_actions_frame, text="Sluiten", command=master.quit).pack(side=tk.RIGHT, padx=(5,0))  # Adjusted padding
+    ttk.Button(bottom_actions_frame, text="Close", command=master.quit).pack(side=tk.RIGHT, padx=(5,0))  # Adjusted padding

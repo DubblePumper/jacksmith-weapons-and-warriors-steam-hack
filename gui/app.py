@@ -76,16 +76,41 @@ class SolEditorApp:
     def on_sol_file_select(self, event): 
         self.actions.on_sol_file_select(event)
 
-    def on_tree_item_select(self, event): 
-        self.actions.on_tree_item_select(event)
+    def on_tree_item_select(self, event):
+        selected_items = self.data_tree.selection()
+        if not selected_items:
+            self.selected_tree_item_id = None
+            self.key_label_var.set("")
+            self.value_text.delete("1.0", tk.END)
+            self.update_button.config(state=tk.DISABLED)
+            return
 
-    def update_value(self): 
+        self.selected_tree_item_id = selected_items[0]
+        key_display = self.data_tree.item(self.selected_tree_item_id, "text")
+        self.key_label_var.set(key_display)
+        
+        actual_value = self._get_value_from_tree_path(self.selected_tree_item_id)
+        self.value_text.delete("1.0", tk.END)
+        if isinstance(actual_value, (dict, list)):
+            try:
+                self.value_text.insert(tk.END, json.dumps(actual_value, indent=2, ensure_ascii=False))
+            except TypeError:
+                self.value_text.insert(tk.END, str(actual_value) + "\n(Not JSON serializable)")
+        elif actual_value is not None:
+            self.value_text.insert(tk.END, str(actual_value))
+        else:
+            self.value_text.insert(tk.END, "")
+        self.update_button.config(state=tk.NORMAL)
+        # Focus the value_text widget for editing
+        self.value_text.focus_set()
+
+    def update_value(self):
         self.actions.update_value()
 
-    def save_sol_file(self): 
+    def save_sol_file(self):
         self.actions.save_sol_file()
 
-    def export_to_json(self): 
+    def export_to_json(self):
         self.actions.export_to_json()
 
     # --- Core UI logic methods ---
