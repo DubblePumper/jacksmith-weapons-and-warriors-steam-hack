@@ -6,7 +6,7 @@ from tkinter import ttk, filedialog, messagebox
 import json
 from pathlib import Path
 
-from sol_handler import read_sol, write_sol, find_jacksmith_sol_folder
+from sol_handler import read_sol, write_sol
 
 class SolEditorApp:
     def __init__(self, master):

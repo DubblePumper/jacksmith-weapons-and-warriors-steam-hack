@@ -54,8 +54,21 @@ def read_sol(path):
     return lso_dict
 
 def write_sol(path, data):
-    with open(path, 'wb') as f:
-        sol.save(data, f)
+    # path is expected to be a Path object or a string path
+    path_obj = Path(path)
+    sol_name = path_obj.stem  # Get filename without .sol extension
+
+    # Create an SOL object
+    # pyamf.SOL defaults to AMF0, check if your .sol files are AMF3
+    # Jacksmith .sol files are typically AMF0
+    lso = sol.SOL(sol_name) 
+
+    # Populate the SOL object with the data from the dictionary
+    for key, value in data.items():
+        lso[key] = value
+    
+    with open(path_obj, 'wb') as f:
+        sol.save(lso, f) # Save the SOL object
 
 def find_jacksmith_sol_folder():
     """Zoekt naar de Jacksmith .sol bestanden map."""
